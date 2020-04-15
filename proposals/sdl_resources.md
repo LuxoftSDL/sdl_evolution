@@ -86,7 +86,7 @@ CPU consumption is close to 0 %
 
 ![5 apps registered IDLE CPU](../assets/proposals/sdl_resources/001_five_apps_idle_stat/docker_docker_CPUPerc.png)
 
-![5 devices on app on each devices CPU](../assets/proposals/sdl_resources/002_five_devices_one_app_idle_stat/(docker_docker_CPUPerc.png)
+![5 devices on app on each devices CPU](../assets/proposals/sdl_resources/002_five_devices_one_app_idle_stat/docker_docker_CPUPerc.png)
 
 In IDLE state is 25 - 35 threads in SDL.
 
