@@ -158,13 +158,13 @@ If SDL built with logs, Raspberry PI is not able to run it and establish communi
 Memory leak on SDL build with the logger in scenarios:
 
 _Note_ : This measure was done on x64 Ubuntu Linux.
-[logger Memory leak 1](../assets/proposals/sdl_resources/logger_memory_leak1.png)
-[logger Memory leak 2](../assets/proposals/sdl_resources/logger_memory_leak2.png)
+![logger Memory leak 1](../assets/proposals/sdl_resources/logger_memory_leak1.png)
+![logger Memory leak 2](../assets/proposals/sdl_resources/logger_memory_leak2.png)
 
 #### Registering 5 application multiple times memory leak
 
 Multiple registering/unregistering applications continuously add memory leak, future investigations blocked because of thread leak and core crash. 
-[Memory leak ](../assets/proposals/sdl_resources/011_five_apps_multiple_reg_act_stat/docker_docker_MemUsage.png)
+![Memory leak ](../assets/proposals/sdl_resources/011_five_apps_multiple_reg_act_stat/docker_docker_MemUsage.png)
 
 ### Thread count leak
 
@@ -172,7 +172,7 @@ Following use case :
 
 __Registering 5 application multiple times__ cause thread leak on SDL :
 
-[Thread leak](../assets/proposals/sdl_resources/011_five_apps_multiple_reg_act_stat/pidstat_pidstat_threads.png)
+![Thread leak](../assets/proposals/sdl_resources/011_five_apps_multiple_reg_act_stat/pidstat_pidstat_threads.png)
 
 ## SDL stability tests
 
