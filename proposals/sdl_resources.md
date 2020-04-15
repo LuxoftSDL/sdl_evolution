@@ -131,16 +131,17 @@ Thread count during streaming is still close to 30 - 35.
 ### PTU
 
 Policy table update takes abount 40 - 45 MB for processing.
-![PTU thru mobile RAM]()
-![PTU thru HMI RAM]()
+![PTU thru mobile RAM](../assets/proposals/sdl_resources/006_ptu_through_mobile_stat/docker_docker_MemUsage.png)
+![PTU thru HMI RAM](../assets/proposals/sdl_resources/007_ptu_through_hmi_stat/docker_docker_MemUsage.png)
 
 PTU takes up tp 25% CPU (quoter of 1 core)
-![PTU thru mobile CPU]()
-![PTU thru HMI CPU]()
+![PTU thru mobile CPU](../assets/proposals/sdl_resources/006_ptu_through_mobile_stat/docker_docker_CPUPerc.png)
+![PTU thru HMI CPU](../assets/proposals/sdl_resources/007_ptu_through_hmi_stat/docker_docker_CPUPerc.png)
 
 Thread count during PTU is still 30 - 35
-![PTU thru mobile threads]()
-![PTU thru HMI threads]()
+![PTU thru mobile threads](../assets/proposals/sdl_resources/006_ptu_through_mobile_stat/ps_ps_thcount.png)
+![PTU thru HMI threads](../assets/proposals/sdl_resources/007_ptu_through_hmi_stat/ps_ps_thcount.png)
+
 
 ## Issues in SDL
 
