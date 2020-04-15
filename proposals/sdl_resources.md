@@ -118,8 +118,8 @@ SDL takes up to 100 MB during streaming.
 
 SDL consumes close to 80-100% CPU ( one full core) for streaming processing.
 
-![One app streaming CPU](../assets/proposals/sdl_resources/005_one_app_streaming_stat/ps_ps_%cpu.png)
-![One app streaming with RPC communication CPU](../assets/proposals/sdl_resources/012_one_app_streaming_rpc_processing_stat/ps_ps_%cpu.png)
+![One app streaming CPU](../assets/proposals/sdl_resources/005_one_app_streaming_stat/ps_ps_ps_ps_perccpu.png)
+![One app streaming with RPC communication CPU](../assets/proposals/sdl_resources/012_one_app_streaming_rpc_processing_stat/ps_ps_perccpu.png)
 
 RPC communication during streaming do not add significant resource spendings.
 
@@ -157,7 +157,8 @@ If SDL build with logs, Raspberry PI is not able to run it and establish communi
 Memory leak on SDL build with logger in scenarious:
 
 _Note_ : This measures was done on x64 Ubuntu linux.
-[logger Memory leak]()
+[logger Memory leak 1](../assets/proposals/sdl_resources/logger_memory_leak1.png)
+[logger Memory leak 2](../assets/proposals/sdl_resources/logger_memory_leak2.png)
 
 #### Registering 5 applicaiton multiple times memory leak
 
