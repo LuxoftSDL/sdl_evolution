@@ -71,7 +71,7 @@ Was tested several usecases :
 - 012_one_app_streaming_rpc_processing_stat
 
 Test scripts for testing are available :
-Measurment results are available :
+Measurement results are available :
 
 ### Resource Overview
 
@@ -80,7 +80,7 @@ Measurment results are available :
 In IDLE state SDL takes ~40 (+/- 5) MB.
 
 ![5 apps registered IDLE RAM](../assets/proposals/sdl_resources/001_five_apps_idle_stat/docker_docker_MemUsage.png)
-![5 devices on app on each devices RAM](../assets/proposals/sdl_resources/002_five_devices_one_app_idle_stat/docker_docker_MemUsage.png)
+![5 devices one app on each devices RAM](../assets/proposals/sdl_resources/002_five_devices_one_app_idle_stat/docker_docker_MemUsage.png)
 
 CPU consumption is close to 0 %
 
@@ -96,7 +96,7 @@ In IDLE state is 25 - 35 threads in SDL.
 
 ### RPC communication
 
-With active RPC communiation or registering applicaiton SDL do not exceed 45 MB.
+With active RPC communication or registering application SDL does not exceed 45 MB.
 
 ![One app registration multiple times RAM](../assets/proposals/sdl_resources/004_one_app_multiple_reg_act_stat/docker_docker_MemUsage.png)
 ![PerformInteraction RAM](../assets/proposals/sdl_resources/009_perform_interaction_stat/docker_docker_MemUsage.png)
@@ -121,7 +121,7 @@ SDL consumes close to 80-100% CPU ( one full core) for streaming processing.
 ![One app streaming CPU](../assets/proposals/sdl_resources/005_one_app_streaming_stat/ps_ps_perccpu.png)
 ![One app streaming with RPC communication CPU](../assets/proposals/sdl_resources/012_one_app_streaming_rpc_processing_stat/ps_ps_perccpu.png)
 
-RPC communication during streaming do not add significant resource spendings.
+RPC communication during streaming does not add significant resource spendings.
 
 Thread count during streaming is still close to 30 - 35. 
 
@@ -130,7 +130,7 @@ Thread count during streaming is still close to 30 - 35.
 
 ### PTU
 
-Policy table update takes abount 40 - 45 MB for processing.
+Policy table update takes about 40 - 45 MB for processing.
 ![PTU thru mobile RAM](../assets/proposals/sdl_resources/006_ptu_through_mobile_stat/docker_docker_MemUsage.png)
 ![PTU thru HMI RAM](../assets/proposals/sdl_resources/007_ptu_through_hmi_stat/docker_docker_MemUsage.png)
 
@@ -145,44 +145,44 @@ Thread count during PTU is still 30 - 35
 
 ## Issues in SDL
 
-There is several problems currently exist in SDL:
+There are several problems currently exist in SDL:
 
 ### Unable to use SDL with logs in Raspberry PI
 
-If SDL build with logs, Raspberry PI is not able to run it and establish communication.
+If SDL built with logs, Raspberry PI is not able to run it and establish communication.
 
 ### Memory leaks
 
 #### Log4cxx thread leak
 
-Memory leak on SDL build with logger in scenarious:
+Memory leak on SDL build with the logger in scenarios:
 
-_Note_ : This measures was done on x64 Ubuntu linux.
+_Note_ : This measure was done on x64 Ubuntu Linux.
 [logger Memory leak 1](../assets/proposals/sdl_resources/logger_memory_leak1.png)
 [logger Memory leak 2](../assets/proposals/sdl_resources/logger_memory_leak2.png)
 
-#### Registering 5 applicaiton multiple times memory leak
+#### Registering 5 application multiple times memory leak
 
-Multiple registering/unregistering applicaitons continiously add memory leak, future  investication blocked because of thread leak and core crash. 
+Multiple registering/unregistering applications continuously add memory leak, future investigations blocked because of thread leak and core crash. 
 [Memory leak ](../assets/proposals/sdl_resources/011_five_apps_multiple_reg_act_stat/docker_docker_MemUsage.png)
 
 ### Thread count leak
 
 Following use case :
 
-__Registering 5 applicaiton multiple times__ cause thread leak on SDL :
+__Registering 5 application multiple times__ cause thread leak on SDL :
 
 [Thread leak](../assets/proposals/sdl_resources/011_five_apps_multiple_reg_act_stat/pidstat_pidstat_threads.png)
 
 ## SDL stability tests
 
-Created measurments test cases should be executed on regular base and should be extended.
+Created measurement test cases should be executed on a regular base and should be extended.
 
-Based on current measurments ew can create resource constrains, and check that SDL will not exceed then in future releaseses.
+Based on current measurements ew can create resource constraints, and check that SDL will not exceed then in future releases.
 
-Non funcitonal requirenments should should contain more than RAM\CPU constrains :
+Non-functional requirements should contain more than RAM\CPU constrains :
 
-- SDL bandwith for streaming.
+- SDL bandwidth for streaming.
 - Delay introduced by SDL in RPC\streaming processing
 - Control message response time.
 - RPC message response time (minus HMI response time)
