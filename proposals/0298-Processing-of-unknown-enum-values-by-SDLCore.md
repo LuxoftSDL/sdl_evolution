@@ -57,7 +57,19 @@ If a parameter includes an unknown enum value, SDL Core has to cut off such valu
       If the `info` parameter contains other value(s) belonging to the original processing result SDL Core has to append information about cut-off enum value(s) to the existing value.
 
   **Examples:**
+
   In each example below the mobile application sends a request to SDL Core.
+
+  **NOTE**
+
+  To determine the API version for choosing if a parameter is mandatory should be used the negotiated API version.
+
+  In the case when Mobile Application has the 7.0 API version and the SDL Core has the 6.0 API version, the negotiated API version will be 6.0 (the version of the SDL Core).
+
+  In the case when Mobile Application has the 6.0 API version and the SDL Core has the 7.0 API version, the negotiated API version will be 6.0 (the version of the Mobile Application).
+
+  Negotiated API version is the version that should be used for determining if a parameter is mandatory or not, as mandatory=true/false can change between different APIs versions
+
   1. The request contains a parameter which value is an enum item.
 
       Request: `SetMediaClockTimer`
@@ -67,7 +79,7 @@ If a parameter includes an unknown enum value, SDL Core has to cut off such valu
       SDL Core removes the item `UNKNOWN` from the request.
       The value of the `updateMode` parameter becomes empty.
       SDL Core omits an empty parameter from the request.
-      Since the parameter is mandatory (according to the SDL Core API), the request fails with the following response to a mobile application:
+      Since the parameter is mandatory, the request fails with the following response to a mobile application:
       `success=false, resultCode = "INVALID_DATA", info="Invalid enums were removed: updateMode:UNKNOWN"`
 
       1.2 Parameter is optional: `audioStreamingIndicator="UNKNOWN"`.
@@ -75,7 +87,7 @@ If a parameter includes an unknown enum value, SDL Core has to cut off such valu
       SDL Core removes the `UNKNOWN` item from the request.
       The value of the `audioStreamingIndicator` parameter becomes empty.
       SDL Core omits the empty parameter in the request.
-      Since the parameter is optional (according to the SDL Core API), the request is successfully processed with the following response to a mobile application:
+      Since the parameter is optional, the request is successfully processed with the following response to a mobile application:
       `success=true, resultCode = "WARNINGS", info="Invalid enums were removed: audioStreamingIndicator:UNKNOWN"`
 
   2. The request contains a parameter for which the value is an array of enum items.
@@ -93,7 +105,7 @@ If a parameter includes an unknown enum value, SDL Core has to cut off such valu
 
       SDL Core removes both `UNKNOWN_1` and `UNKNOWN_2` items from the request.
       The value of `appHMIType` parameter becomes empty.
-      Since `minsize` of the parameter is `1` (according to the SDL Core API), the request fails with the following response to mobile application:
+      Since `minsize` of the parameter is `1`, the request fails with the following response to mobile application:
       `success=false, resultCode = "INVALID_DATA", info="Invalid enums were removed: appHMIType:UNKNOWN_1, UNKNOWN_2"`
 
   3. The request contains a parameter (with enum item value) which is a part of the structure.
@@ -141,10 +153,11 @@ If a parameter includes an unknown enum value, SDL Core has to cut off such valu
 
 ## Potential downsides
 
-This proposal does not solve versioning issues. For example:
-In the MOBILE API exists the "DisplayCapabilities" parameter which is deprecated since the 6.0 API version. In the case when a Mobile Application has the 6.0 API version and the SDL Core has the 5.0 version and Mobile Application sends a message to the SDL Core without the "DisplayCapabilities" parameter, it brought the SDL Core to a core crash.
+There is the case when a Mobile Application has the older API version (for example 6.0) then SDL Core and the SDL Core has the newer API version (for example 7.0).
 
-To avoid a similar situation the SDL Core should have the mechanism to negotiate his own API version with Mobile Application API versions and choose the correct way to process messages. The mechanism is out of the scope of this proposal and should be described in a separate proposal.
+In the Mobile Application, some parameter is not mandatory and in the SDL Core, the same parameter is become as mandatory. Should keep in mind that the implementation of the SDL Core is updated according to the last API version. And in the described case if the Mobile Application will not send the parameter, that could bring the SDL Core to the incorrect behavior.
+
+This proposal doesn't cover this case and changes for that should be described in a separate proposal.
 
 ## Impact on existing code
 
