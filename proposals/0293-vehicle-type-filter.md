@@ -3,7 +3,7 @@
 * Proposal: [SDL-0293](0293-vehicle-type-filter.md)
 * Author: [Ashwin Karemore](https://github.com/ashwink11)
 * Status: **Accepted with Revisions**
-* Impacted Platforms: [Core / iOS / Java Suite / Protocol / JavaScript Suite]
+* Impacted Platforms: [Core / iOS / Java Suite / Protocol / JavaScript Suite / HMI / RPC]
 
 ## Introduction
 
@@ -48,6 +48,19 @@ This proposal tries to address the router service notification issue by defining
 The proposed solution is to share vehicle type information with the SDL application before sending the `RegisterAppInterface` RPC. This method will require the protocol layer change. The vehicle type information can be shared using `StartServiceACK` protocol message. On receiving vehicle type info, the app can determine if it's connected to supported SDL system or not. If the vehicle type is unsupported, the app will not register on SDL enabled IVI system. The below sections will describe additional information exchange in the protocol layer and changes in the JavaScript Suite, Java Suite, and iOS app libraries. 
 
 <img src="../assets/proposals/0293-vehicle-type-filter/sequence_diagram.png" alt="Sequence Diagram"/>
+
+### MOBILE_API and HMI_API Changes
+
+#### Addition of "VehicleType" struct
+
+```xml
+<struct name="VehicleType" since="2.0">
+    :
+    <param name="systemHardwareVersion" type="String" maxlength="500" mandatory="false" since="X.X">
+        <description>The hardware version of the system</description>
+    </param>
+</struct>
+```
 
 ### Protocol Layer Changes
 
