@@ -37,10 +37,10 @@ Existing code can be simplified by introducing standardized С++ std::thread, wh
 First of all we could change type of member handle_:
 
 
-class Thread {                                   class Thread {
-...                                              	...
+class Thread {                                   
+...
 
-	PlatformThreadHandle handle_;      --->   		std::thread handle_;
+	PlatformThreadHandle handle_;   --->   std::thread handle_;
 
 
 std::thread is a standard class that allows to do all the work with threads regardless of the target platform.
@@ -61,35 +61,56 @@ Specifically, I would suggest dropping the Thread stack resizing functionality, 
 Some refactor of methods implementation in class Thread will be required:
 
   public methods:
-
-  bool Start(); 									- need some refactor 
-  bool Stop();  									- almost does not change
-  void Join(const ThreadJoinOption join_option); 	- almost does not change
-  ThreadDelegate* GetDelegate()                     - does not change
-  void SetDelegate(ThreadDelegate* delegate)        - does not change
-  static void SchedYield();                         - can be implemented with std::this_thread::yield
-  static PlatformThreadHandle CurrentId();          - only the signature changes
-  static void SetNameForId(const PlatformThreadHandle& thread_id,  std::string name); - does not change
-  const std::string& GetThreadName()                - does not change
-  bool IsRunning()                                  - does not change
-  bool IsJoinable()                                 - almost does not change                      
-  size_t StackSize()                                - redundant (on my opinion)
-  PlatformThreadHandleThreadHandle() const          - only the signature changes
-  bool IsCurrentThread() const;                     - refactor with using std::this_thread...
-  const ThreadOptions& GetThreadOptions() const     - does not change
+  
+  
+  >bool Start(); 				    - need some refactor
+  >
+  >bool Stop();  				    - almost does not change
+  >
+  >void Join(const ThreadJoinOption join_option);    - almost does not change
+  >
+  >ThreadDelegate* GetDelegate()                     - does not change
+  >
+  >void SetDelegate(ThreadDelegate* delegate)        - does not change
+  >
+  >static void SchedYield();                         - can be implemented with std::this_thread::yield
+  >
+  >static PlatformThreadHandle CurrentId();          - only the signature changes
+  >
+  >static void SetNameForId(const PlatformThreadHandle& thread_id,  std::string name); - does not change
+  >
+  >const std::string& GetThreadName()                - does not change
+  >
+  >bool IsRunning()                                  - does not change
+  >
+  >bool IsJoinable()                                 - almost does not change  
+  >                    
+  >size_t StackSize()                                - redundant (on my opinion)
+  >
+  >PlatformThreadHandleThreadHandle() const          - only the signature changes
+  >
+  >bool IsCurrentThread() const;                     - refactor with using std::this_thread...
+  >
+  >const ThreadOptions& GetThreadOptions() const     - does not change
 
   private methods:
-  Thread(const char* name, ThreadDelegate* delegate); - need some refactor 
-  virtual ~Thread();                                  - need some refactor
-  static void* threadFunc(void* arg);                 - need refactor probably we could move this functionality to some thread manager                
-  static void cleanup(void* arg);                     - also can be move to thread manager  
-  pthread_attr_t SetThreadCreationAttributes(ThreadOptions* thread_options); - does not change
+  >Thread(const char* name, ThreadDelegate* delegate); - need some refactor
+  > 
+  >virtual ~Thread();                                  - need some refactor
+  >
+  >static void* threadFunc(void* arg);                 - need refactor probably we could move this functionality to some thread manager 
+  >               
+  >static void cleanup(void* arg);                     - also can be move to thread manager
+  >  
+  >pthread_attr_t SetThreadCreationAttributes(ThreadOptions* thread_options); - does not change
   
-  bool StopDelegate(sync_primitives::AutoLock& auto_lock);  - this methods probably should be renamed because current names are poorly representative of the implementation
-  bool StopSoft(sync_primitives::AutoLock& auto_lock);        also need some refactor  
-  void StopForce(sync_primitives::AutoLock& auto_lock);
-
-  void JoinDelegate(sync_primitives::AutoLock& auto_lock); - does not change
+  >bool StopDelegate(sync_primitives::AutoLock& auto_lock);  - this methods probably should be renamed because current names are poorly representative of the implementation
+  >
+  >bool StopSoft(sync_primitives::AutoLock& auto_lock);        also need some refactor  
+  >
+  >void StopForce(sync_primitives::AutoLock& auto_lock);
+  >
+  >void JoinDelegate(sync_primitives::AutoLock& auto_lock); - does not change
 
 Static methods of Thread class makes sense to move to ThreadManager class.
 Also in ThreadManager could be moved functionsl of global functions CreateThread() and DeleteThread()
