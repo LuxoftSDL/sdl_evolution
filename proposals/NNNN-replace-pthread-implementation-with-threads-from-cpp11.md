@@ -7,15 +7,13 @@
 
 ## Introduction
 
-Replacing pthreds with std::thread will make the code more platform-independent. That will simplify build, support and porting of the code to various platforms
-
+Replacing [pthreads](https://man7.org/linux/man-pages/man7/pthreads.7.html) with [std::thread](https://www.cplusplus.com/reference/thread/thread/) will make the code more platform-independent. That will simplify build, support and porting of the code to various platforms.
 
 ## Motivation
 
-Currently we using pthread (in POSIX systems) for thread works. It is a C library, and was not designed with some issues critical to C++ in mind, most importantly object lifetimes and exceptions.
+Currently we are using pthread library (in POSIX systems) for working with threads. It is a C library, and was not designed with some issues critical to C++ in mind like an object lifetimes and exceptions.
 
-C++11 standart library provides some classes, functions and primitives having a single interface for work with threads:
-
+C++11 standard library provides some classes, functions and primitives having a single interface for work with threads:
  - class thread as an abstraction for a thread of execution.
  - several classes and class templates for mutexes and locks, intending RAII2 to be used for their management and locking strategies, e.g., `std::recursive_mutex`, `std::timed_mutex`; `std::unique_lock`; `std::defer_lock`, `std::try_to_lock`.
  - function and class templates to create callable objects which are integrated into the thread facilities.
@@ -59,7 +57,7 @@ If in some place we need a system specific handler then we could use `std::threa
 File name thread_posix.cc can be simplify to thread.cc
 
 The interface of Thread API will remain practically the same, with the exception of some methods:
-Specifically, I would suggest dropping the Thread stack resizing functionality, because it's extremely rare to actually need a non-default stack-size.
+Specifically, there is a suggestion to drop the Thread stack resizing functionality, because it's extremely rare to actually need a non-default stack-size.
 Some refactor of methods implementation in class Thread will be required:
 
   public methods:
