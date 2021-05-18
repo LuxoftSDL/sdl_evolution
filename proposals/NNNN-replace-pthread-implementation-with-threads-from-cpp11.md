@@ -13,12 +13,14 @@ Replacing [pthreads](https://man7.org/linux/man-pages/man7/pthreads.7.html) with
 
 Currently we are using pthread library (in POSIX systems) for working with threads. It is a C library, and was not designed with some issues critical to C++ in mind like an object lifetimes and exceptions.
 
+Implementation of class-wrapper for working with threads used in sdl looks overloaded. 
+There is can note that we had faced with the need to add some multithreaded code when porting SDL to Android, this would not have been necessary if using a standardized thread.
+
 C++11 standard library provides some classes, functions and primitives having a single interface for work with threads:
  - class thread as an abstraction for a thread of execution.
  - several classes and class templates for mutexes and locks, intending RAII2 to be used for their management and locking strategies, e.g., `std::recursive_mutex`, `std::timed_mutex`; `std::unique_lock`; `std::defer_lock`, `std::try_to_lock`.
  - function and class templates to create callable objects which are integrated into the thread facilities.
  - сondition variables (some uses of POSIX condition variables are better replaced by `std::future`).
- - atomic types and functions on atomic types.
  - memory fence functions to for memory-ordering between operations.
  - variadic templates (which enable the simple means of passing arguments to a thread function)
  - lambda expressions (anonymous closure objects), which can be used in place of functions.
@@ -29,22 +31,18 @@ By replacing the thread code with the features listed above, we can make it simp
 
 ## Proposed solution
 
-Transition to a new implementation of multi-threaded code involves editing almost all files from the directory utils/thread.
-And also some multithreading related files from components.
-Below are some details of the proposed refactoring:
+We could keep all functionality of the current implementation of multi-threaded code where it is required and at the same time be able to use the proposed standardized approach. For this the interface of Thread API will remain practically the same, with the exception of some methods:
 
-**Class Thread:**
+ - some of the methods should be made as virtual
+ - type of field handle_ can be defined as a template parameter.
+ - static methods of Thread class makes sense to move to ThreadManager class.
+ - also in ThreadManager could be moved functional from global functions `CreateThread()` and `DeleteThread()`
 
-First of all we could change type of member handle_ in  existing wrapper class Thread:
+Below is an approximate class diagram for working with multithreaded code:
 
-```
-class Thread {                                   
-...
-	PlatformThreadHandle handle_;   --->   std::thread handle_;
-```
+![GitHub Logo](https://raw.githubusercontent.com/LuxoftSDL/sdl_evolution/refactor/Replace_Thread_implementation_with_std_thread_fromC%2B%2B11/assets/proposals/Replace-Thread-implementation/threads_uml.png)
 
-std::thread is a standard class that allows to do all the work with threads regardless of the target platform.
-So in this case we could also remove from our thread.h this:
+We could also remove from our thread.h this:
 
 	#if defined(OS_POSIX)
 	typedef pthread_t PlatformThreadHandle;
@@ -52,92 +50,17 @@ So in this case we could also remove from our thread.h this:
 	#error Please implement thread for your OS
 	#endif
 
-If in some place we need a system specific handler then we could use `std::thread::native_handle` which will give us an implementation-defined base thread descriptor.
 
-File name thread_posix.cc can be simplify to thread.cc
+When using standard C++11 threads, if in some place we need a system specific handler then we could use `std::thread::native_handle` which will give us an implementation-defined base thread descriptor.
 
-The interface of Thread API will remain practically the same, with the exception of some methods:
 Specifically, there is a suggestion to drop the Thread stack resizing functionality, because it's extremely rare to actually need a non-default stack-size.
-Some refactor of methods implementation in class Thread will be required:
-
-  public methods:
-  
-  `bool Start(); 				    - need some refactor`
-  
-  `bool Stop();  				    - almost does not change`
-  
-  `void Join(const ThreadJoinOption join_option);    - almost does not change`
-  
-  `ThreadDelegate* GetDelegate()                     - does not change`
-  
-  `void SetDelegate(ThreadDelegate* delegate)        - does not change`
-  
-  `static void SchedYield();                         - can be implemented with std::this_thread::yield`
-  
-  `static PlatformThreadHandle CurrentId();          - only the signature changes`
-  
-  `static void SetNameForId(const PlatformThreadHandle& thread_id,  std::string name); - does not change`
-  
-  `const std::string& GetThreadName()                - does not change`
-  
-  `bool IsRunning()                                  - does not change`
-  
-  `bool IsJoinable()                                 - almost does not change`  
-                      
-  `size_t StackSize()                                - redundant (on my opinion)`
-  
-  `PlatformThreadHandleThreadHandle() const          - only the signature changes`
-  
-  `bool IsCurrentThread() const;                     - refactor with using std::this_thread...`
-  
-  `const ThreadOptions& GetThreadOptions() const     - does not change`
-
-  private methods:
-  
-  `Thread(const char* name, ThreadDelegate* delegate); - need some refactor`
-   
-  `virtual ~Thread();                                  - need some refactor`
-  
-  `static void* threadFunc(void* arg);                 - need refactor probably we could move this functionality to some thread manager` 
-                 
-  `static void cleanup(void* arg);                     - also can be move to thread manager`
-    
-  `pthread_attr_t SetThreadCreationAttributes(ThreadOptions* thread_options); - does not change`
-  
-  `bool StopDelegate(sync_primitives::AutoLock& auto_lock);  - this methods probably should be renamed because current names are poorly representative of the implementation`
-  
-  `bool StopSoft(sync_primitives::AutoLock& auto_lock);        also need some refactor`  
-  
-  `void StopForce(sync_primitives::AutoLock& auto_lock);`
-  
-  `void JoinDelegate(sync_primitives::AutoLock& auto_lock); - does not change`
-
-Static methods of Thread class makes sense to move to ThreadManager class.
-Also in ThreadManager could be moved functional from global functions `CreateThread()` and `DeleteThread()`
 
 Based on the features listed in the Motivation section we can replace the contents of the files with c++11 facilities:
-  - utils/atomic.h
   - utils/callable.h
   - utils/conditional_variable.h
   - memory_barrier.h
 
-Since C++11 standard does acknowledge multithreading directly in the memory model we should not use volatile for synchronization and use `std::atomic<T>` with `std::memory_order` from standard library instead.
-However, in SDL Core code now we can find places where volatile is used as a synchronization mechanism.
-For example from thread.h:
-
-  ```
-  /**
-   * @brief Used to request actions from worker thread.
-   */
-   volatile ThreadCommand thread_command_;
-
-  /**
-   * @brief Used from worker thread to inform about its status.
-   */
-  volatile ThreadState thread_state_;
-  ```
-
-
+We can also refuse to use mutexes from the boost library, since it is as part of the standard library
 
 ## Potential downsides
 
