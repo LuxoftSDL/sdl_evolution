@@ -11,7 +11,7 @@ Replacing [pthreads](https://man7.org/linux/man-pages/man7/pthreads.7.html) with
 
 ## Motivation
 
-Currently we are using pthread library (in POSIX systems) for working with threads. It is a C library, and was not designed with some issues critical to C++ in mind like an object lifetimes and exceptions.
+Currently we are using pthread library (in POSIX systems) for working with threads. It is a C library which does not consider some OOP aspects critical to C++ like an object lifetimes and exceptions handling.
 
 Implementation of class-wrapper for working with threads used in sdl looks overloaded. 
 There is can note that we had faced with the need to add some multithreaded code when porting SDL to Android, this would not have been necessary if using a standardized thread.
@@ -35,7 +35,7 @@ We could keep all functionality of the current implementation of multi-threaded 
 
  - some of the methods should be made as virtual
  - type of field handle_ can be defined as a template parameter.
- - static methods of Thread class makes sense to move to ThreadManager class.
+ - static methods of Thread class makes sense to move to ThreadManager.
  - also in ThreadManager could be moved functional from global functions `CreateThread()` and `DeleteThread()`
 
 Below is an approximate class diagram for working with multithreaded code:
@@ -65,7 +65,7 @@ We can also refuse to use mutexes from the boost library, since it is as part of
 ## Potential downsides
 
 C++11 provides no equivalent to pthread_cancel(pthread_t thread).
-As variant to solve this issue we can add some cancellation_token to thread attributes which contains a sign that thread has cancelled.
+As an option to resolve this issue we can add some `cancellation_token` to thread attributes which contains a sign that thread has cancelled.
 
 Pthreads provides control over the size of the stack of created threads, C++11 does not address this issue.
 Most likely we can do without this functionality, but if not, then we can turn to `std::thread::native_handle` 
