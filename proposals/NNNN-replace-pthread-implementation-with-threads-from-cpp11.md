@@ -51,7 +51,7 @@ private:
   threads::Thread* thread_;
 };
   ```
-As the result of the changes the same class should be changed to the class with the same functionality but with simpler structure (without delegate classes, raw pointers and complicated callbacks) and without any 3rd party dependencies:
+As the result of the changes the same class should be changed to the class with the same functionality but with a simpler structure without delegate classes, raw pointers, complicated callbacks, and any 3rd party dependencies:
 
 ```
 class UsbHandler {
