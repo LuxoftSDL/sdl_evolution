@@ -7,103 +7,67 @@
 
 ## Introduction
 
-This proposal is called to replacing [pthreads](https://man7.org/linux/man-pages/man7/pthreads.7.html) with [std::thread](https://www.cplusplus.com/reference/thread/thread/) will make the code more platform-independent. That will simplify build, support and porting of the code to various platforms.
+The proposal's main idea is to remove the platform-specific threads functionality covered by the C++ 11 standard threads from the SDL Core.
 
 ## Motivation
 
-The current implementation uses the pthread library (on POSIX systems) to work with threads. It is a C library which does not consider some OOP aspects critical to C++ like an object lifetimes and exceptions handling. With the transition to С++11 standard thread, we will be able to make the code simpler, more reliable, and also more easily portable to other platforms.
+The latest version of the SDL Core utilizes the pthread library to manage the threads.
 
-Implementation of class-wrapper for working with threads used in SDL Core looks overloaded. 
-There is can note that we we already had some difficulties with threads when porting the code, this would not have been necessary if using a standardized thread.
+This code and libraries were introduced due to the limitation of the C++ standard at that period of time. The currently supported version of the C++ standard in SDL Core is C++ 11 that contains a similar functionality to manage the threads in a common way for most of the platforms.
 
-C++11 standard library provides some classes, functions and primitives having a single interface for work with threads:
- - class thread as an abstraction for a thread of execution.
- - several classes and class templates for mutexes and locks, intending RAII2 to be used for their management and locking strategies, e.g., `std::recursive_mutex`, `std::timed_mutex`; `std::unique_lock`; `std::defer_lock`, `std::try_to_lock`.
- - function and class templates to create callable objects which are integrated into the thread facilities.
- - сondition variables (some uses of POSIX condition variables are better replaced by `std::future`).
- - memory fence functions to for memory-ordering between operations.
- - variadic templates (that enable the simple means of passing arguments to a thread function)
- - lambda expressions (anonymous closure objects), that can be used in place of functions.
- - rvalue references, which enable perfect forwarding to a thread function
+At the same time, the approaches defined in the C++ 11 standard are well known for most developers around the world.
+
+The main idea is to replace the 3rd party libraries and the list of wrappers for the thread management with the approaches defined in the C++ 11 standard. The mentioned changes shouldn't affect the functionality of the SDL Core, should improve portability in general, simplify the support of the project due to the standard approaches and minimize the list of dependencies.
 
 
 ## Proposed solution
 
+As mentioned in the previous section, the changes introduced to the project shouldn't affect the functionality. It should mostly be done to replace the non-standard functionally, as in the example below.
 
-The proposed solution is not aimed to change the functionality of the existing code. The changes will affect only the design of the code by generalizing the approach, removing obsolete parts of the code and introducing new approaches proposed by the C ++ 11 standard
-
-The interface of Thread API will remain practically the same, with the exception of some methods:
-
- - some of the methods should be made as virtual
- - type of field handle_ changes to std::thread
- - static methods of Thread class makes sense to move to ThreadManager.
- - also in ThreadManager could be moved functional from global functions `CreateThread()` and `DeleteThread()`
-
-In order to approximately show how the code will be changed, there can bring the class UsbHandler:
-
-In current implementation we should create some delegate class (UsbHandlerDelegate) to wrap thread function.
-For creation and binding Thread with delegate we use arbitrary function `Thread* CreateThread(const char* name, ThreadDelegate* delegate)`.
+The current implementation is represented with the current class UsbHandler:
 
 ```
 class UsbHandler {
-    public:
-	UsbHandler::UsbHandler() {
-	  thread_ = threads::CreateThread("UsbHandler", new UsbHandlerDelegate(this));
-	}
+public:
+  UsbHandler::UsbHandler() {
+    thread_ = threads::CreateThread("UsbHandler", new UsbHandlerDelegate(this));
+  }
 	
-   private:
+private:
 
-    void Thread() {...}
+  void DoSomething() {...}
 
-  	class UsbHandlerDelegate : public threads::ThreadDelegate {
-   	public:
+  class UsbHandlerDelegate : public threads::ThreadDelegate {
+  public:
     void threadMain() {
-  		handler_->Thread();
-	}
+      handler_->DoSomething();
+    }
     void exitThreadMain() OVERRIDE;
 
-   	private:
+  private:
     UsbHandler* handler_;
-  	};
-
-    threads::Thread* thread_;
   };
+
+  threads::Thread* thread_;
+};
   ```
-In this case using an extra wrapper for Thread() function is redundant: we could pass standard wrapper(std::function) directly to std::thread.
-Also we keep Thread* thread_ by raw pointer and must do in destructor:
-```  
-  delete thread_->GetDelegate();
-  threads::DeleteThread(thread_);
-```
+As the result of the changes the same class should be changed to the class with the same functionality but with simpler structure (without delegate classes, raw pointers and complicated callbacks) and without any 3rd party dependencies:
 
-which is an additional reason for potential memory leaks.
-
-With new approach we could rewrite this code to:
 ```
 class UsbHandler {
-    public:
-	UsbHandler::UsbHandler() {
-	  thread = std::thread([](){Thread();});
-	}
+public:
+  UsbHandler::UsbHandler() {
+    thread = std::thread([](){DoSomething();});
+  }
+	
+private:
+  void DoSomething() {...}
 
-   private:
-    void Thread() {...}
-
-    std::thread thread_;
-  };
+  std::thread thread_;
+};
   ```
 
-In other classes with multithreading behavior situation the same.
-
-When using standard C++11 threads, if in some place we need a system specific handler (for example: stack resizing) then we could use `std::thread::native_handle` which will give us an implementation-defined base thread descriptor.
-
-Based on the features listed in the Motivation section we can replace the contents of the files with c++11 facilities:
-  - utils/callable.h
-  - utils/conditional_variable.h
-  - memory_barrier.h
-
-We can also stop using mutexes from the boost library since it is a part of the standard library
-
+The same changes should be introduced not only for the threads but also for the synchronization primitives like mutex, conditional variable, etc., where required.
 
 
 ## Potential downsides
