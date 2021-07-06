@@ -34,7 +34,7 @@ FlushLogMessagesBeforeShutdown = true
 MaxTimeBeforeShutdown = 30
 ```
 
-By default `FlushLogMessagesBeforeShutdown` should be `true` to keep existing SDL behavior unchanged, so SDL will be able to dump all the log messages into the file system as it currently doing. This flag can be changed to `false` in the case when missing log messages before the shutdown are not necessary (for example in the production builds). In this case, SDL can be closed much faster.
+By default `FlushLogMessagesBeforeShutdown` should be `true` to keep existing SDL behavior unchanged, so SDL will be able to dump all the log messages into the file system as it's currently doing. This flag can be changed to `false` in the case when missing log messages before the shutdown are not necessary (for example in the production builds). In this case SDL can be closed much faster.
 
 `MaxTimeBeforeShutdown` would be used in case if `FlushLogMessagesBeforeShutdown` is `true`. It should measure the time taken by SDL since the start of the logger's `Flush()` call. If writing logs to the file system takes more time than specified, SDL should terminate `Flush()` call and exit from the logger process. Note, that time since `OnExitAllApplications` notification received can't be considered as a start point because it is just a happy path for SDL to shut down, however, SDL can also be stopped abnormally for example when the unhandled exception was thrown or system signal from another process received. Mentioned timeout should be applicable for described scenarios as well.
 
