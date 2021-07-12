@@ -41,13 +41,19 @@ Mobile application should use HTTP connection with REST protocol for control com
  - DisconnectFromSDL - Disconnects from SDL
  - GetSDLConnectionStatus - Provides status of connection to SDL
 
-It should provide host and port of TCP server for raw binary data communication with ATF on establishing successful connection to SDL.
+Mobile application should provide next information as main part of response to GetDeviceInfo request:
+ - Operating system
+ - MAC address
+ - Array of transports available to connect to SDL
+
+Mobile application should provide host and port of TCP server for raw binary data communication with ATF on establishing successful connection to SDL.
+Mentioned host and port should be provided as main part of response to ConnectToSDL request.
 Mobile application should transfer data from ATF received by TCP server to SDL and vice versa.
 Mobile application may use [SDL android library](https://github.com/smartdevicelink/sdl_android) for communicating with SDL.
 
 ATF should be able to connect to multiple Mobile transport adapters and provide ability to use any of them to test engineer.
 
-Test engineer should be able to to create sessions on provided by ATF mobile transport adapters.
+Test engineers should be able to create sessions on provided by ATF mobile transport adapters.
 Session interface should not be changed.
 
 In the case where a mobile device is absent, ATF should be able to test SDL via TCP connection (as it does now).
