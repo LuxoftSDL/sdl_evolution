@@ -41,10 +41,9 @@ Mobile application should use HTTP connection with REST protocol for control com
  - DisconnectFromSDL - Disconnects from SDL
  - GetSDLConnectionStatus - Provides status of connection to SDL
 
-Mobile application should provide next information as main part of the response to `GetDeviceInfo` request (all described parameters are mandatory):
- - Operating system type (string value from list: "Android", "iOS", "Linux", ...)
- - MAC address (string value)
- - Array of transports available to connect to SDL (string values from list: "WIFI", "BT", "USB")
+Mobile application should provide next information as main part of the response to `GetDeviceInfo` request:
+ - Operating system type
+ - Array of transports (with transport specific information) which available to connect to SDL
 
 Mobile application should provide host and port of TCP server for raw binary data communication with ATF on establishing successful connection to SDL.
 Mentioned host and port should be provided as main part of the response to `ConnectToSDL` request.
