@@ -1,9 +1,9 @@
 # ATF support of additional transports (BT and USB)
 
 * Proposal: [SDL-0126](0126-atf-additional-transports.md)
-* Author: [Alexander Kutsan](https://github.com/LuxoftAKutsan)
-* Status: **Accepted**
-* Impacted Platforms: [Core]
+* Author: [Alexander Kutsan](https://github.com/LuxoftAKutsan), [Oleksandr Deriabin](https://github.com/aderiabin)
+* Status: **Awaiting review**
+* Impacted Platforms: [ATF]
 
 ## Introduction
 
@@ -33,27 +33,27 @@ Main reasons :
 ## Proposed solution
 
 Use real mobile device as a transport adapter.
-Create Mobile application as a part of ATF infrastructure. 
-Mobile application may use [SDL android library](https://github.com/smartdevicelink/sdl_android)
-for communicating with SDL and TCP connection for communication with ATF.
+Create Android mobile application as a part of ATF infrastructure.
 
-Mobile application (Mobile transport adapter) should provide to ATF side such RPCs:
- - ConnectToSDL(transport)
- - RemoveConnection(connection_id)
- - GetListOfAvailableTransports()
- - SendData(connection_id, data)
- 
-ATF should be able to connect to multiple Mobile transport adapters and provide ability to use any of them to test engineer. 
+Mobile application should use HTTP connection with REST protocol for control communication with ATF using next API:
+ - GetDeviceInfo - Provides device's information
+ - ConnectToSDL - Connects to SDL and provides proxy TCP connection parameters
+ - DisconnectFromSDL - Disconnects from SDL
+ - GetSDLConnectionStatus - Provides status of connection to SDL
 
-ATF should provide such API to test engineer: 
- - ConnectToSDL(device, connection type)
- - RemoveConnection(connection)
- - SendRawData(connection)
- - GetListOfAvailableDevices()
- - GetDeviceInfo(device)
- 
-_СonnectToSDL_ should return connection object.
-Connection object should provide ability to create sessions on it. Session interface should not be changed.  
+Mobile application should provide next information as main part of the response to `GetDeviceInfo` request:
+ - Operating system type
+ - Array of transports (with transport specific information) which available to connect to SDL
+
+Mobile application should provide host and port of TCP server for raw binary data communication with ATF on establishing successful connection to SDL.
+Mentioned host and port should be provided as main part of the response to `ConnectToSDL` request.
+Mobile application should transfer data from ATF received by TCP server to SDL and vice versa.
+Mobile application may use [SDL android library](https://github.com/smartdevicelink/sdl_android) for communicating with SDL.
+
+ATF should be able to connect to multiple Mobile transport adapters and provide ability to use any of them to test engineer.
+
+Test engineers should be able to create sessions on provided by ATF mobile transport adapters.
+Session interface should not be changed.
 
 In the case where a mobile device is absent, ATF should be able to test SDL via TCP connection (as it does now).
 
